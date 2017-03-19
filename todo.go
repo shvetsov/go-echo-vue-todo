@@ -5,6 +5,7 @@ import (
   "go-echo-vue/handlers"
 
   "github.com/labstack/echo"
+  "github.com/labstack/echo/middleware"
   _ "github.com/mattn/go-sqlite3"
 )
 
@@ -15,6 +16,12 @@ func main() {
 
   // Create a new instance of Echo
   e := echo.New()
+
+  // Logger
+  e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+    Format: "Start ${method} \"${uri}\" for ${remote_ip} ${time_rfc3339_nano}\n"+
+      "Completed ${status} Found in ${latency_human}\n\n",
+  }))
 
   e.File("/", "public/index.html")
   e.GET("/tasks", handlers.GetTasks(db))
