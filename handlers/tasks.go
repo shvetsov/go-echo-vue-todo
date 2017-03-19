@@ -11,51 +11,51 @@ import (
 )
 
 
-// Небольшой трюк, который позволит возвращать произвольный JSON. Это просто map со ключами типа string и любым типом значения.
+// A small trick that will return arbitrary JSON. 
+// It's just a map with keys of type string and any type of value.
 type H map[string]interface{}
 
 
-// конечная точка GetTasks
+// GetTasks endpoint
 func GetTasks(db *sql.DB) echo.HandlerFunc {
   return func(c echo.Context) error {
-    // получаем задачи из модели
     return c.JSON(http.StatusOK, models.GetTasks(db))
   }
 }
 
-// конечная точка PutTask
+// PutTask endpoint
 func PutTask(db *sql.DB) echo.HandlerFunc {
   return func(c echo.Context) error {
-    // создаём новую задачу
+    // Instantiate a new task
     var task models.Task
-    // привязываем пришедший JSON в новую задачу
+    // Map imcoming JSON body to the new Task
     c.Bind(&task)
-    // добавим задачу с помощью модели
+    // Add a task using our new model
     id, err := models.PutTask(db, task.Name)
-    // вернём ответ JSON при успехе
+    // Return a JSON response if successful
     if err == nil {
       return c.JSON(http.StatusCreated, H{
         "created": id,
       })
-    // обработка ошибок
+    // Handle any errors
     } else {
       return err
     }
   }
 }
 
-// конечная точка DeleteTask
+// DeleteTask endpoint
 func DeleteTask(db *sql.DB) echo.HandlerFunc {
   return func(c echo.Context) error {
     id, _ := strconv.Atoi(c.Param("id"))
-    // используем модель для удаления задачи
+    // Use our new model to delete a task
     _, err := models.DeleteTask(db, id)
-    // вернём ответ JSON при успехе
+    // Return a JSON response on success
     if err == nil {
       return c.JSON(http.StatusOK, H{
         "deleted": id,
       })
-    // обработка ошибок
+    // Handle errors
     } else {
       return err
     }

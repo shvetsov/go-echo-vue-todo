@@ -6,33 +6,33 @@ import (
   _ "github.com/mattn/go-sqlite3"
 )
 
-// Task это структура с данными задачи 
+// Task is a struct containing Task data
 type Task struct {
   ID    int     `json:"id"`
   Name  string  `json:"name"`
 }
 
-// TaskCollection это список задач
+// TaskCollection is collection of Tasks
 type TaskCollection struct {
   Tasks []Task `json:"items"`
 }
 
-
+// GetTasks from the DB
 func GetTasks(db *sql.DB) TaskCollection {
   sql := "SELECT * FROM tasks"
   rows, err := db.Query(sql)
-  // выходим, если SQL не сработал по каким-то причинам
+  // Exit if the SQL doesn't work for some reason
   if err != nil {
     panic(err)
   }
-  // убедимся, что всё закроется при выходе из программы
+  // make sure to cleanup when the program exits
   defer rows.Close()
 
   result := TaskCollection{}
   for rows.Next() {
     task := Task{}
     err2 := rows.Scan(&task.ID, &task.Name)
-    // выход при ошибке
+    // Exit if we get an error
     if err2 != nil {
       panic(err2)
     }
@@ -41,22 +41,22 @@ func GetTasks(db *sql.DB) TaskCollection {
   return result
 }
 
-
+// PutTask into DB
 func PutTask(db *sql.DB, name string) (int64, error) {
   sql := "INSERT INTO tasks(name) VALUES(?)"
 
-  // выполним SQL запрос
+  // Create a prepared SQL statement
   stmt, err := db.Prepare(sql)
-  // выход при ошибке
+  // Exit if we get an error
   if err != nil {
     panic(err)
   }
-  // убедимся, что всё закроется при выходе из программы
+  // Make sure to cleanup after the program exits
   defer stmt.Close()
 
-  // заменим символ '?' в запросе на 'name'
+  // Replace the '?' in our prepared statement with 'name'
   result, err2 := stmt.Exec(name)
-  // выход при ошибке
+  // Exit if we get an error
   if err2 != nil {
     panic(err2)
   }
@@ -64,20 +64,20 @@ func PutTask(db *sql.DB, name string) (int64, error) {
   return result.LastInsertId()
 }
 
-
+// DeleteTask from DB
 func DeleteTask(db *sql.DB, id int) (int64, error) {
   sql := "DELETE FROM tasks WHERE id = ?"
 
-  // выполним SQL запрос
+  // Create a prepared SQL statement
   stmt, err := db.Prepare(sql)
-  // выход при ошибке
+  // Exit if we get an error
   if err != nil {
     panic(err)
   }
 
-  // заменим символ '?' в запросе на 'id'
+  // Replace the '?' in our prepared statement with 'id'
   result, err2 := stmt.Exec(id)
-  // выход при ошибке
+  // Exit if we get an error
   if err2 != nil {
     panic(err2)
   }

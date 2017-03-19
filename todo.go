@@ -27,16 +27,16 @@ func main() {
 
 
 func initDB(filepath string) *sql.DB {
-  //откроем файл или создадим его
+
   db, err := sql.Open("sqlite3", filepath)
 
-  // проверяем ошибки и выходим при их наличии
+  // Here we check for any db errors then exit
   if err != nil {
     panic(err)
   }
 
-  // если ошибок нет, но не можем подключиться к базе данных,
-  // то так же выходим
+  // If we don't get any errors but somehow still don't get a db connection
+  // we exit as well
   if db == nil {
     panic("db nil")
   }
@@ -53,7 +53,7 @@ func migrate(db *sql.DB) {
   `
 
   _, err := db.Exec(sql)
-  // выходим, если будут ошибки с SQL запросом выше
+  // Exit if something goes wrong with our SQL statement above
   if err != nil {
     panic(err)
   }
